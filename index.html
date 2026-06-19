@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Car Budget Calculator | Rent Cash vs. Company Car</title>
+  <meta name="description" content="Compare the financial and qualitative trade-offs of keeping a personal car and taking a cash allowance versus getting a company car.">
+  <!-- Google Fonts: Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="logo-area">
+        <div class="logo-icon"><i class="fa-solid fa-calculator-combined"></i></div>
+        <span class="logo-text">AutoBudget</span>
+      </div>
+      <div class="header-content">
+        <h1>Car Budget Calculator</h1>
+        <p>Compare the real financial gain or loss of keeping your paid-off personal car versus taking a company car lease.</p>
+      </div>
+      <div class="theme-toggle-area">
+        <button id="themeToggle" class="btn-theme-toggle" aria-label="Toggle Theme">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Verdict Banner / Glowing Summary -->
+    <section class="verdict-section card highlight-card" id="verdictCard">
+      <div class="verdict-content">
+        <div class="verdict-icon" id="verdictIcon">
+          <i class="fa-solid fa-scale-balanced"></i>
+        </div>
+        <div class="verdict-text-group">
+          <h2 id="verdictTitle">Calculating comparison...</h2>
+          <p id="verdictDescription">Adjust the inputs below to see the monthly and annual differences.</p>
+        </div>
+      </div>
+      <div class="comparison-scale">
+        <div class="scale-label-left">Keep Personal Car</div>
+        <div class="scale-track">
+          <div class="scale-marker" id="scaleMarker"></div>
+        </div>
+        <div class="scale-label-right">Company Car</div>
+      </div>
+    </section>
+
+    <!-- Main Workspace Grid -->
+    <main class="main-grid">
+      <!-- Input Section -->
+      <section class="inputs-panel card">
+        <h2 class="section-title"><i class="fa-solid fa-sliders"></i> Adjust Parameters</h2>
+
+        <!-- TCO Toggle -->
+        <div class="input-group toggle-group tco-switch-container">
+          <label class="toggle-label" for="tcoSwitch">
+            <strong>Calculation Method</strong>
+            <span class="help-text">TCO includes savings to replace your car eventually; Cash Flow only looks at immediate out-of-pocket costs.</span>
+          </label>
+          <div class="switch-container">
+            <span class="switch-label text-dim">Cash Flow</span>
+            <input type="checkbox" id="tcoSwitch" checked class="hidden-checkbox">
+            <label for="tcoSwitch" class="toggle-switch"></label>
+            <span class="switch-label text-bold">TCO (Recommended)</span>
+          </div>
+        </div>
+
+        <!-- Group 1: Work Allowance -->
+        <div class="input-card-group">
+          <h3 class="group-title"><i class="fa-solid fa-briefcase"></i> Work Allowance</h3>
+          
+          <div class="input-row">
+            <div class="input-label-container">
+              <label for="workBudget">Monthly Allowance Budget</label>
+              <span class="tooltip-trigger" data-tooltip="The monthly budget provided by your employer (e.g. €550) that can be paid as cash (rent) or spent on a company car lease."><i class="fa-solid fa-circle-info"></i></span>
+            </div>
+            <div class="input-control">
+              <span class="input-prefix">€</span>
+              <input type="number" id="workBudget" value="550" min="0" max="2000" step="10">
+            </div>
+          </div>
+          <input type="range" id="workBudgetSlider" min="100" max="1500" value="550" step="10" class="custom-slider" aria-label="Monthly Allowance Budget Slider">
+
+          <div class="input-row mt-3">
+            <div class="input-label-container">
+              <label for="allowanceTax">Tax Rate on Cash Allowance</label>
+              <span class="tooltip-trigger" data-tooltip="Tax applied to the allowance if taken in cash. If used directly for rent or mortgage near work (like Belgian Mobility Budget Pillar 2), this can be 0%. If paid as regular salary, it might be 40-50%."><i class="fa-solid fa-circle-info"></i></span>
+            </div>
+            <div class="input-control">
+              <input type="number" id="allowanceTax" value="0" min="0" max="60" step="1">
+              <span class="input-suffix">%</span>
+            </div>
+          </div>
+          <input type="range" id="allowanceTaxSlider" min="0" max="60" value="0" step="1" class="custom-slider" aria-label="Tax Rate Slider">
+        </div>
+
+        <!-- Group 2: Personal Car Details -->
+        <div class="input-card-group mt-4">
+          <h3 class="group-title"><i class="fa-solid fa-car"></i> Your Personal Car</h3>
+
+          <!-- Paid off Toggle -->
+          <div class="input-row-flex mb-3">
+            <label class="label-inline" for="carPaidOff">Is the car fully paid off?</label>
+            <div class="switch-container">
+              <input type="checkbox" id="carPaidOff" checked class="hidden-checkbox">
+              <label for="carPaidOff" class="toggle-switch-sm"></label>
+            </div>
+          </div>
+
+          <!-- Hidden Loan Payment input -->
+          <div id="loanPaymentRow" class="input-row mt-3 hidden">
+            <div class="input-label-container">
+              <label for="loanPayment">Monthly Loan/Lease Payment</label>
+            </div>
+            <div class="input-control">
+              <span class="input-prefix">€</span>
+              <input type="number" id="loanPayment" value="0" min="0" max="1000" step="10">
+            </div>
+          </div>
+          <input type="range" id="loanPaymentSlider" min="0" max="800" value="0" step="10" class="custom-slider hidden" aria-label="Loan Payment Slider">
+
+          <!-- Insurance Input with Switch -->
+          <div class="input-row mt-3">
+            <div class="input-label-container">
+              <label for="insuranceCost">Insurance Cost</label>
+              <span class="tooltip-trigger" data-tooltip="Your insurance premiums. Switch toggle to select Monthly or Annual cost."><i class="fa-solid fa-circle-info"></i></span>
+            </div>
+            <div class="input-control-toggle">
+              <div class="input-control short">
+                <span class="input-prefix">€</span>
+                <input type="number" id="insuranceCost" value="120" min="0" max="3000" step="5">
+              </div>
+              <div class="btn-group-toggle" id="insurancePeriodGroup">
+                <button type="button" class="btn-toggle active" data-value="monthly">Monthly</button>
+                <button type="button" class="btn-toggle" data-value="yearly">Yearly</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mileage slider -->
+          <div class="input-row mt-3">
+            <div class="input-label-container">
+              <label for="annualMileage">Annual Mileage</label>
+              <span class="tooltip-trigger" data-tooltip="Total kilometers driven per year."><i class="fa-solid fa-circle-info"></i></span>
+            </div>
+            <div class="input-control">
+              <input type="number" id="annualMileage" value="10000" min="500" max="100000" step="500">
+              <span class="input-suffix">km</span>
+            </div>
+          </div>
+          <input type="range" id="annualMileageSlider" min="1000" max="40000" value="10000" step="500" class="custom-slider" aria-label="Annual Mileage Slider">
+
+          <!-- Fuel Consumption slider -->
+          <div class="input-row mt-3">
+            <div class="input-label-container">
+              <label for="fuelConsumption">Average Consumption</label>
+              <span class="tooltip-trigger" data-tooltip="Average fuel consumption of your car in Liters per 100km."><i class="fa-solid fa-circle-info"></i></span>
+            </div>
+            <div class="input-control">
+              <input type="number" id="fuelConsumption" value="8.0" min="2.0" max="25.0" step="0.1">
+              <span class="input-suffix">L/100km</span>
+            </div>
+          </div>
+          <input type="range" id="fuelConsumptionSlider" min="3.0" max="15.0" value="8.0" step="0.1" class="custom-slider" aria-label="Fuel Consumption Slider">
+
+          <!-- Fuel Price slider -->
+          <div class="input-row mt-3">
+            <div class="input-label-container">
+              <label for="fuelPrice">Average Fuel Price</label>
+              <span class="tooltip-trigger" data-tooltip="Average price per liter of fuel at the pump (e.g. €1.70)."><i class="fa-solid fa-circle-info"></i></span>
+            </div>
+            <div class="input-control">
+              <span class="input-prefix">€</span>
+              <input type="number" id="fuelPrice" value="1.70" min="0.50" max="3.00" step="0.05">
+              <span class="input-suffix">/ L</span>
+            </div>
+          </div>
+          <input type="range" id="fuelPriceSlider" min="1.00" max="2.50" value="1.70" step="0.05" class="custom-slider" aria-label="Fuel Price Slider">
+
+          <!-- Taxes & CT slider -->
+          <div class="input-row mt-3">
+            <div class="input-label-container">
+              <label for="operatingTax">Operating Tax & Inspection (CT)</label>
+              <span class="tooltip-trigger" data-tooltip="Annual road taxes, registration fees, and regular mandatory inspection (Control Technique) fees combined."><i class="fa-solid fa-circle-info"></i></span>
+            </div>
+            <div class="input-control">
+              <span class="input-prefix">€</span>
+              <input type="number" id="operatingTax" value="1000" min="0" max="5000" step="50">
+              <span class="input-suffix">/ yr</span>
+            </div>
+          </div>
+          <input type="range" id="operatingTaxSlider" min="0" max="2500" value="1000" step="50" class="custom-slider" aria-label="Operating Tax Slider">
+
+          <!-- Maintenance slider -->
+          <div class="input-row mt-3">
+            <div class="input-label-container">
+              <label for="maintenance">Yearly Garage / Maintenance</label>
+              <span class="tooltip-trigger" data-tooltip="Average yearly check-up, tires, oil changes, and minor repair costs at the garage."><i class="fa-solid fa-circle-info"></i></span>
+            </div>
+            <div class="input-control">
+              <span class="input-prefix">€</span>
+              <input type="number" id="maintenance" value="200" min="0" max="5000" step="20">
+              <span class="input-suffix">/ yr</span>
+            </div>
+          </div>
+          <input type="range" id="maintenanceSlider" min="0" max="2000" value="200" step="50" class="custom-slider" aria-label="Maintenance Slider">
+
+          <!-- Depreciation/Future Car Savings slider -->
+          <div class="input-row mt-3" id="depreciationRow">
+            <div class="input-label-container">
+              <label for="depreciation">Future Car Replacement Savings</label>
+              <span class="tooltip-trigger" data-tooltip="Even though your car is paid off, setting aside money monthly to buy your next car is a real TCO cost. Leaving this at €0 ignores long-term depreciation."><i class="fa-solid fa-circle-info"></i></span>
+            </div>
+            <div class="input-control">
+              <span class="input-prefix">€</span>
+              <input type="number" id="depreciation" value="150" min="0" max="1000" step="10">
+              <span class="input-suffix">/ mo</span>
+            </div>
+          </div>
+          <input type="range" id="depreciationSlider" min="0" max="500" value="150" step="10" class="custom-slider" id="depreciationRange" aria-label="Replacement Savings Slider">
+        </div>
+
+        <!-- Group 3: Company Car Options -->
+        <div class="input-card-group mt-4">
+          <h3 class="group-title"><i class="fa-solid fa-building-user"></i> Company Car Option</h3>
+
+          <div class="input-row">
+            <div class="input-label-container">
+              <label for="companyCarCost">Net Salary Reduction (BIK/Tax)</label>
+              <span class="tooltip-trigger" data-tooltip="The actual reduction in your take-home net monthly pay. This includes Benefit-in-Kind (BIK) tax and any employee personal contribution for lease/fuel."><i class="fa-solid fa-circle-info"></i></span>
+            </div>
+            <div class="input-control">
+              <span class="input-prefix">€</span>
+              <input type="number" id="companyCarCost" value="0" min="0" max="1000" step="10">
+            </div>
+          </div>
+          <input type="range" id="companyCarCostSlider" min="0" max="600" value="0" step="10" class="custom-slider" aria-label="Company Car Cost Slider">
+        </div>
+      </section>
+
+      <!-- Output Section -->
+      <section class="outputs-panel">
+        
+        <!-- Cards comparison -->
+        <div class="comparison-cards-grid">
+          
+          <!-- Card Option A -->
+          <article class="option-card" id="cardOptionA">
+            <div class="card-header">
+              <div class="option-badge">Option A</div>
+              <h3>Keep Car + Cash</h3>
+            </div>
+            <div class="cash-flow-summary">
+              <div class="main-sum text-emerald" id="optionANetMonthly">+€216.67</div>
+              <div class="sub-sum" id="optionANetYearly">+€2,600 / year</div>
+              <span class="sum-label">Net Pocket Position</span>
+            </div>
+            
+            <div class="card-divider"></div>
+            
+            <ul class="breakdown-list">
+              <li>
+                <span class="item-name"><i class="fa-solid fa-plus-circle text-emerald"></i> Net Cash Allowance</span>
+                <span class="item-val text-emerald" id="breakdownAllowance">+€550.00</span>
+              </li>
+              <li>
+                <span class="item-name"><i class="fa-solid fa-minus-circle text-rose"></i> Insurance Premium</span>
+                <span class="item-val text-rose" id="breakdownInsurance">-€120.00</span>
+              </li>
+              <li>
+                <span class="item-name"><i class="fa-solid fa-minus-circle text-rose"></i> Fuel Consumption</span>
+                <span class="item-val text-rose" id="breakdownFuel">-€113.33</span>
+              </li>
+              <li>
+                <span class="item-name"><i class="fa-solid fa-minus-circle text-rose"></i> Taxes & CT</span>
+                <span class="item-val text-rose" id="breakdownTaxes">-€83.33</span>
+              </li>
+              <li>
+                <span class="item-name"><i class="fa-solid fa-minus-circle text-rose"></i> Maintenance & Repairs</span>
+                <span class="item-val text-rose" id="breakdownMaint">-€16.67</span>
+              </li>
+              <li id="breakdownLoanRow" class="hidden">
+                <span class="item-name"><i class="fa-solid fa-minus-circle text-rose"></i> Loan Payment</span>
+                <span class="item-val text-rose" id="breakdownLoan">-€0.00</span>
+              </li>
+              <li id="breakdownDepreciationRow">
+                <span class="item-name"><i class="fa-solid fa-minus-circle text-rose"></i> Replacement Savings</span>
+                <span class="item-val text-rose" id="breakdownDepreciation">-€150.00</span>
+              </li>
+            </ul>
+          </article>
+
+          <!-- Card Option B -->
+          <article class="option-card" id="cardOptionB">
+            <div class="card-header">
+              <div class="option-badge">Option B</div>
+              <h3>Company Car</h3>
+            </div>
+            <div class="cash-flow-summary">
+              <div class="main-sum text-rose" id="optionBNetMonthly">-€150.00</div>
+              <div class="sub-sum" id="optionBNetYearly">-€1,800 / year</div>
+              <span class="sum-label">Net Pocket Position</span>
+            </div>
+
+            <div class="card-divider"></div>
+
+            <ul class="breakdown-list">
+              <li>
+                <span class="item-name"><i class="fa-solid fa-circle-minus text-dim"></i> Cash Allowance Lost</span>
+                <span class="item-val text-dim">€0.00</span>
+              </li>
+              <li>
+                <span class="item-name"><i class="fa-solid fa-minus-circle text-rose"></i> Net Salary Cut (BIK)</span>
+                <span class="item-val text-rose" id="breakdownCompanyCarCost">-€150.00</span>
+              </li>
+              <li>
+                <span class="item-name"><i class="fa-solid fa-check text-emerald"></i> Insurance</span>
+                <span class="item-val text-emerald">Covered (€0)</span>
+              </li>
+              <li>
+                <span class="item-name"><i class="fa-solid fa-check text-emerald"></i> Fuel / Charging</span>
+                <span class="item-val text-emerald">Covered (€0)</span>
+              </li>
+              <li>
+                <span class="item-name"><i class="fa-solid fa-check text-emerald"></i> Road Taxes & CT</span>
+                <span class="item-val text-emerald">Covered (€0)</span>
+              </li>
+              <li>
+                <span class="item-name"><i class="fa-solid fa-check text-emerald"></i> Maintenance / Tires</span>
+                <span class="item-val text-emerald">Covered (€0)</span>
+              </li>
+            </ul>
+          </article>
+        </div>
+
+        <!-- Personal Car Cost Breakdown Chart (CSS based bar chart) -->
+        <div class="card chart-card mt-4">
+          <h3 class="group-title"><i class="fa-solid fa-chart-bar"></i> Personal Car Monthly Cost Distribution</h3>
+          <div class="chart-container">
+            <div class="stacked-bar" id="stackedCostBar">
+              <div class="bar-segment insurance-segment" style="width: 25%" data-label="Insurance" id="segInsurance"></div>
+              <div class="bar-segment fuel-segment" style="width: 25%" data-label="Fuel" id="segFuel"></div>
+              <div class="bar-segment tax-segment" style="width: 20%" data-label="Tax/CT" id="segTax"></div>
+              <div class="bar-segment maint-segment" style="width: 10%" data-label="Maint." id="segMaint"></div>
+              <div class="bar-segment loan-segment" style="width: 0%" data-label="Loan" id="segLoan"></div>
+              <div class="bar-segment depreciation-segment" style="width: 20%" data-label="Savings" id="segDepreciation"></div>
+            </div>
+            <div class="chart-legend" id="chartLegend">
+              <!-- Legend items will be injected here by JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Qualitative Pros & Cons -->
+        <div class="card pros-cons-card mt-4">
+          <h3 class="group-title"><i class="fa-solid fa-right-left"></i> Lifestyle & Risk Comparison</h3>
+          
+          <div class="pros-cons-grid">
+            <div class="qualitative-column">
+              <h4 class="column-header text-emerald"><i class="fa-solid fa-circle-check"></i> Keeping Personal Car</h4>
+              <ul class="check-list">
+                <li><strong>Pocket Savings:</strong> Keep a larger cash buffer for rent/savings.</li>
+                <li><strong>No BIK Tax:</strong> Avoid monthly benefit-in-kind payroll deductions.</li>
+                <li><strong>Freedom:</strong> Your car is yours; no contract restrictions or mileage limits from a leasing company.</li>
+                <li><strong>Asset Ownership:</strong> You own the residual value of the car (if you sell it later).</li>
+              </ul>
+            </div>
+            
+            <div class="qualitative-column border-left">
+              <h4 class="column-header text-blue"><i class="fa-solid fa-shield-halved"></i> Taking Company Car</h4>
+              <ul class="check-list">
+                <li><strong>Zero Risk:</strong> Breakdown, engine failure, gearbox replacement? All €0 cost to you.</li>
+                <li><strong>Stress-Free:</strong> No garage bills, tire shopping, or dealing with road tax paperwork.</li>
+                <li><strong>Brand New Vehicle:</strong> Drive a modern, safer, and cleaner vehicle with modern infotainment/safety systems.</li>
+                <li><strong>Predictable Budget:</strong> Exactly the same salary impact every single month, no surprises.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <footer class="app-footer">
+    <p>AutoBudget Calculator &copy; 2026. Custom comparison tool for personal finance evaluation.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
